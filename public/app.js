@@ -8,10 +8,10 @@
   const statusEl = document.getElementById('status');
   const panelLabel = document.getElementById('panelLabel');
   const panelTitle = document.getElementById('panelTitle');
-  const liveBadgeText = document.getElementById('liveBadgeText');
   const remotePill = document.getElementById('remotePill');
   const localVideo = document.getElementById('localVideo');
   const remoteVideo = document.getElementById('remoteVideo');
+  const closeButton = document.getElementById('closeButton');
 
   const config = await fetch('/config.json', { cache: 'no-store' }).then((response) => response.json());
   const iceServers = (config.stunServers || []).map((urls) => ({ urls }));
@@ -44,13 +44,36 @@
     requestAnimationFrame(() => experience.classList.add('visible'));
   }
 
+  function closeExperience() {
+    peers.forEach((peer) => peer.close());
+    peers.clear();
+    pendingIce.clear();
+    socket?.close();
+    socket = null;
+    hasJoined = false;
+    role = null;
+    stopLocalStream();
+    localCard.classList.add('hidden');
+    localCard.classList.remove('visible');
+    remoteCard.classList.add('hidden');
+    remoteCard.classList.remove('visible');
+    remoteVideo.srcObject = null;
+    experience.classList.remove('visible');
+    window.setTimeout(() => experience.classList.add('hidden'), 240);
+    modePicker.classList.remove('hidden');
+    streamButton.disabled = false;
+    watchButton.disabled = false;
+    autoWatchStarted = false;
+    updateLiveBadge(false);
+    setStatus('Choose Stream or Watch.');
+  }
+
   function revealCard(card) {
     card.classList.remove('hidden');
     requestAnimationFrame(() => card.classList.add('visible'));
   }
 
   function updateLiveBadge(isLive) {
-    liveBadgeText.textContent = isLive ? 'Stream live now' : 'No live stream yet';
     document.body.dataset.live = isLive ? 'true' : 'false';
   }
 
@@ -311,6 +334,7 @@
     watchButton.disabled = true;
     enterWatchMode();
   });
+  closeButton.addEventListener('click', closeExperience);
 
   updateLiveBadge(Boolean(config.hasActiveStreamer));
   setStatus(config.hasActiveStreamer ? 'Live stream detected.' : 'Choose Stream or Watch.');

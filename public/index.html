@@ -7,23 +7,8 @@
     <link rel="stylesheet" href="/styles.css">
   </head>
   <body>
-    <main class="shell">
-      <section class="hero">
-        <div class="hero-copy">
-          <p class="eyebrow">Homebridge Baby Monitor</p>
-          <h1>Open the nursery in one tap.</h1>
-          <p class="lede">
-            Start a stream from the camera device or watch instantly from another screen.
-            If a stream is already live, this page will jump straight into watch mode.
-          </p>
-        </div>
-        <div class="hero-badge" id="liveBadge">
-          <span class="live-dot"></span>
-          <span id="liveBadgeText">Checking live status</span>
-        </div>
-      </section>
-
-      <section class="card mode-picker" id="modePicker">
+    <main class="shell" id="modePicker">
+      <section class="mode-picker" aria-label="Choose a mode">
         <button class="mode-button primary" id="streamButton" type="button">
           <span class="mode-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -33,7 +18,6 @@
           </span>
           <span class="mode-copy">
             <strong>Stream</strong>
-            <span>Use this device as the baby camera.</span>
           </span>
         </button>
 
@@ -48,39 +32,32 @@
           </span>
           <span class="mode-copy">
             <strong>Watch</strong>
-            <span>Join the live stream from this device.</span>
           </span>
         </button>
       </section>
+    </main>
 
-      <section class="card experience hidden" id="experience">
-        <div class="experience-header">
+    <section class="experience hidden" id="experience">
+      <div class="video-stage">
+        <article class="video-card hidden" id="localCard">
+          <video id="localVideo" autoplay muted playsinline></video>
+        </article>
+        <article class="video-card hidden" id="remoteCard">
+          <video id="remoteVideo" autoplay playsinline controls></video>
+        </article>
+      </div>
+      <div class="floating-menu">
+        <div class="floating-heading">
           <div>
             <p class="panel-label" id="panelLabel">Ready</p>
-            <h2 id="panelTitle">Choose how this device should join.</h2>
+            <h1 id="panelTitle">Baby Monitor</h1>
           </div>
-          <p class="status" id="status">Loading configuration…</p>
+          <button class="close-button" id="closeButton" type="button" aria-label="Return to mode selection">×</button>
         </div>
-
-        <div class="video-stack">
-          <article class="video-card hidden" id="localCard">
-            <div class="video-meta">
-              <span class="meta-label">Local preview</span>
-              <span class="meta-pill">Muted</span>
-            </div>
-            <video id="localVideo" autoplay muted playsinline></video>
-          </article>
-
-          <article class="video-card hidden" id="remoteCard">
-            <div class="video-meta">
-              <span class="meta-label">Live stream</span>
-              <span class="meta-pill" id="remotePill">Waiting</span>
-            </div>
-            <video id="remoteVideo" autoplay playsinline controls></video>
-          </article>
-        </div>
-      </section>
-    </main>
+        <p class="status" id="status">Loading configuration…</p>
+        <span class="meta-pill" id="remotePill">Waiting</span>
+      </div>
+    </section>
 
     <script src="/app.js"></script>
   </body>
