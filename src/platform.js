@@ -2,6 +2,8 @@
 
 const express = require('express');
 const http = require('http');
+const https = require('https');
+const fs = require('fs');
 const path = require('path');
 const { WebSocketServer } = require('ws');
 const { Bonjour } = require('bonjour-service');
@@ -66,7 +68,20 @@ class BabyMonitorPlatform {
       });
     });
 
-    this.server = http.createServer(app);
+    const httpsConfig = this.config.https || {};
+    const hasCertificate = Boolean(httpsConfig.certificatePath);
+    const hasKey = Boolean(httpsConfig.keyPath);
+    if (hasCertificate !== hasKey) {
+      throw new Error('https.certificatePath and https.keyPath must be configured together.');
+    }
+
+    const isHttps = hasCertificate && hasKey;
+    this.server = isHttps
+      ? https.createServer({
+        cert: fs.readFileSync(httpsConfig.certificatePath),
+        key: fs.readFileSync(httpsConfig.keyPath)
+      }, app)
+      : http.createServer(app);
     this.wss = new WebSocketServer({ server: this.server });
     this.wss.on('error', (error) => {
       this.log.error('WebSocket server error:', error.message);
@@ -78,11 +93,12 @@ class BabyMonitorPlatform {
       this.server.listen(port, '0.0.0.0', resolve);
     });
 
-    this.advertiseBonjour(port);
+    this.advertiseBonjour(port, isHttps);
 
     const hostHint = this.config.hostName || 'homebridge.local';
-    this.log.info(`Baby monitor UI available on http://${hostHint}:${port}`);
-    this.log.info(`Fallback URL: http://<your-pi-ip>:${port}`);
+    const protocol = isHttps ? 'https' : 'http';
+    this.log.info(`Baby monitor UI available on ${protocol}://${hostHint}:${port}`);
+    this.log.info(`Fallback URL: ${protocol}://<your-pi-ip>:${port}`);
   }
 
   stopServer() {
@@ -113,14 +129,14 @@ class BabyMonitorPlatform {
     }
   }
 
-  advertiseBonjour(port) {
+  advertiseBonjour(port, isHttps = false) {
     const serviceName = this.config.serviceName || 'Baby Monitor';
 
     try {
       this.bonjour = new Bonjour();
       this.service = this.bonjour.publish({
         name: serviceName,
-        type: 'http',
+        type: isHttps ? 'https' : 'http',
         port,
         txt: {
           path: '/',

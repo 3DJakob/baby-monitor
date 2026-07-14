@@ -150,10 +150,25 @@
     if (localStream) {
       return localStream;
     }
-    localStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
-      audio: true
-    });
+
+    if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
+      throw new Error(
+        'Camera access on iPhone requires opening the HTTPS address and trusting its certificate. ' +
+        'HTTP addresses cannot start a camera stream in iOS Safari.'
+      );
+    }
+
+    try {
+      localStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
+        audio: true
+      });
+    } catch (error) {
+      if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+        throw new Error('Camera and microphone access was denied. Allow both permissions in iPhone Settings and Safari.');
+      }
+      throw error;
+    }
     localVideo.srcObject = localStream;
     revealCard(localCard);
     return localStream;

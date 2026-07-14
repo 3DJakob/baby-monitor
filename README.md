@@ -67,6 +67,25 @@ For a real Homebridge run, Homebridge will load the plugin and start the server 
 3. Open the same page on another device.
 4. If a stream is already live, the page joins it automatically. Otherwise press `Watch`.
 
+### iPhone and iPad streaming
+
+iOS only exposes the camera to pages loaded from a secure origin. Configure HTTPS with a certificate trusted by the iPhone:
+
+```json
+{
+  "platform": "BabyMonitorLocal",
+  "name": "Baby Monitor",
+  "port": 8088,
+  "hostName": "homebridge.local",
+  "https": {
+    "certificatePath": "/path/to/homebridge.local.crt",
+    "keyPath": "/path/to/homebridge.local.key"
+  }
+}
+```
+
+Then open `https://homebridge.local:8088` on the iPhone and trust the certificate before pressing `Stream`. A plain `http://` address can still be used for watching, but cannot start the camera on iOS.
+
 The camera creates a separate peer-to-peer WebRTC connection for each watcher. The server only relays the small setup messages and never receives the video or audio.
 
 ## Current limitations

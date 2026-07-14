@@ -28,6 +28,20 @@
         "type": "string",
         "default": "Baby Monitor"
       },
+      "https": {
+        "title": "HTTPS (required for iOS camera streaming)",
+        "type": "object",
+        "properties": {
+          "certificatePath": {
+            "title": "TLS Certificate Path",
+            "type": "string"
+          },
+          "keyPath": {
+            "title": "TLS Private Key Path",
+            "type": "string"
+          }
+        }
+      },
       "stunServers": {
         "title": "STUN Servers",
         "type": "array",
