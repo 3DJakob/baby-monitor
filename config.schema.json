@@ -1,0 +1,43 @@
+{
+  "pluginAlias": "BabyMonitorLocal",
+  "pluginType": "platform",
+  "singular": true,
+  "headerDisplay": "Hosts a simple local WebRTC baby monitor page from Homebridge.",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "title": "Platform Name",
+        "type": "string",
+        "default": "Baby Monitor"
+      },
+      "port": {
+        "title": "HTTP Port",
+        "type": "integer",
+        "default": 8088,
+        "minimum": 1,
+        "maximum": 65535
+      },
+      "hostName": {
+        "title": "Friendly Host Name",
+        "type": "string",
+        "default": "homebridge.local"
+      },
+      "serviceName": {
+        "title": "Bonjour Service Name",
+        "type": "string",
+        "default": "Baby Monitor"
+      },
+      "stunServers": {
+        "title": "STUN Servers",
+        "type": "array",
+        "default": [
+          "stun:stun.l.google.com:19302"
+        ],
+        "items": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

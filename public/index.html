@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Baby Monitor</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Homebridge Baby Monitor</p>
+          <h1>Open the nursery in one tap.</h1>
+          <p class="lede">
+            Start a stream from the camera device or watch instantly from another screen.
+            If a stream is already live, this page will jump straight into watch mode.
+          </p>
+        </div>
+        <div class="hero-badge" id="liveBadge">
+          <span class="live-dot"></span>
+          <span id="liveBadgeText">Checking live status</span>
+        </div>
+      </section>
+
+      <section class="card mode-picker" id="modePicker">
+        <button class="mode-button primary" id="streamButton" type="button">
+          <span class="mode-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 7a3 3 0 0 1 3-3h5a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3z"></path>
+              <path d="m15 10 5-3v10l-5-3"></path>
+            </svg>
+          </span>
+          <span class="mode-copy">
+            <strong>Stream</strong>
+            <span>Use this device as the baby camera.</span>
+          </span>
+        </button>
+
+        <button class="mode-button" id="watchButton" type="button">
+          <span class="mode-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 7h20v10H2z"></path>
+              <path d="M8 20h8"></path>
+              <path d="M12 17v3"></path>
+              <path d="m10 10 5 2-5 2z"></path>
+            </svg>
+          </span>
+          <span class="mode-copy">
+            <strong>Watch</strong>
+            <span>Join the live stream from this device.</span>
+          </span>
+        </button>
+      </section>
+
+      <section class="card experience hidden" id="experience">
+        <div class="experience-header">
+          <div>
+            <p class="panel-label" id="panelLabel">Ready</p>
+            <h2 id="panelTitle">Choose how this device should join.</h2>
+          </div>
+          <p class="status" id="status">Loading configuration…</p>
+        </div>
+
+        <div class="video-stack">
+          <article class="video-card hidden" id="localCard">
+            <div class="video-meta">
+              <span class="meta-label">Local preview</span>
+              <span class="meta-pill">Muted</span>
+            </div>
+            <video id="localVideo" autoplay muted playsinline></video>
+          </article>
+
+          <article class="video-card hidden" id="remoteCard">
+            <div class="video-meta">
+              <span class="meta-label">Live stream</span>
+              <span class="meta-pill" id="remotePill">Waiting</span>
+            </div>
+            <video id="remoteVideo" autoplay playsinline controls></video>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+  </html>
