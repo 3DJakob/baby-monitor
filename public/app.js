@@ -6,12 +6,13 @@
   const localCard = document.getElementById('localCard');
   const remoteCard = document.getElementById('remoteCard');
   const statusEl = document.getElementById('status');
-  const panelLabel = document.getElementById('panelLabel');
   const panelTitle = document.getElementById('panelTitle');
   const remotePill = document.getElementById('remotePill');
+  const liveLabel = remotePill.querySelector('.live-label');
   const localVideo = document.getElementById('localVideo');
   const remoteVideo = document.getElementById('remoteVideo');
   const closeButton = document.getElementById('closeButton');
+  const switchCameraButton = document.getElementById('switchCameraButton');
 
   const config = await fetch('/config.json', { cache: 'no-store' }).then((response) => response.json());
   const iceServers = (config.stunServers || []).map((urls) => ({ urls }));
@@ -28,13 +29,13 @@
   let statusPollTimer = null;
   let joinResolver = null;
   let joinRejecter = null;
+  let cameraFacingMode = 'environment';
 
   function setStatus(message) {
     statusEl.textContent = message;
   }
 
-  function setPanel(label, title) {
-    panelLabel.textContent = label;
+  function setPanel(title) {
     panelTitle.textContent = title;
   }
 
@@ -53,6 +54,9 @@
     hasJoined = false;
     role = null;
     stopLocalStream();
+    cameraFacingMode = 'environment';
+    switchCameraButton.classList.add('hidden');
+    switchCameraButton.disabled = false;
     localCard.classList.add('hidden');
     localCard.classList.remove('visible');
     remoteCard.classList.add('hidden');
@@ -75,6 +79,7 @@
 
   function updateLiveBadge(isLive) {
     document.body.dataset.live = isLive ? 'true' : 'false';
+    liveLabel.textContent = isLive ? 'Live' : 'Waiting';
   }
 
   function socketUrl() {
@@ -127,17 +132,17 @@
     peer.onconnectionstatechange = () => {
       if (peer.connectionState === 'connected') {
         setStatus(role === 'streamer' ? 'Streaming live.' : 'Watching live.');
-        remotePill.textContent = 'Live';
+        liveLabel.textContent = 'Live';
       } else if (peer.connectionState === 'failed') {
         closePeer(peerId);
         setStatus(role === 'streamer' ? 'Viewer connection failed.' : 'Connection failed. Waiting to reconnect…');
-        remotePill.textContent = 'Waiting';
+        liveLabel.textContent = 'Waiting';
       }
     };
     peer.ontrack = ({ streams }) => {
       remoteVideo.srcObject = streams[0];
       remoteVideo.play().catch(() => {
-        remotePill.textContent = 'Tap to play';
+        liveLabel.textContent = 'Tap to play';
         setStatus('Tap the video to start playback.');
       });
       revealCard(remoteCard);
@@ -160,7 +165,7 @@
 
     try {
       localStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
+        video: { facingMode: { ideal: cameraFacingMode }, width: { ideal: 1280 }, height: { ideal: 720 } },
         audio: true
       });
     } catch (error) {
@@ -172,6 +177,45 @@
     localVideo.srcObject = localStream;
     revealCard(localCard);
     return localStream;
+  }
+
+  async function switchCamera() {
+    if (role !== 'streamer' || !localStream || switchCameraButton.disabled) {
+      return;
+    }
+
+    const nextFacingMode = cameraFacingMode === 'environment' ? 'user' : 'environment';
+    switchCameraButton.disabled = true;
+    setStatus('Switching camera…');
+
+    try {
+      const nextStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { exact: nextFacingMode }, width: { ideal: 1280 }, height: { ideal: 720 } },
+        audio: false
+      });
+      const nextVideoTrack = nextStream.getVideoTracks()[0];
+      const previousVideoTrack = localStream.getVideoTracks()[0];
+
+      for (const peer of peers.values()) {
+        const sender = peer.getSenders().find((candidate) => candidate.track?.kind === 'video');
+        if (sender) {
+          await sender.replaceTrack(nextVideoTrack);
+        }
+      }
+
+      localStream = new MediaStream([
+        nextVideoTrack,
+        ...localStream.getAudioTracks()
+      ]);
+      localVideo.srcObject = localStream;
+      previousVideoTrack?.stop();
+      cameraFacingMode = nextFacingMode;
+      setStatus('Streaming live.');
+    } catch (error) {
+      setStatus(`Could not switch camera: ${error.message}`);
+    } finally {
+      switchCameraButton.disabled = false;
+    }
   }
 
   function stopLocalStream() {
@@ -233,9 +277,10 @@
               stopLocalStream();
             }
             revealCard(remoteCard);
-            setPanel('Watch', 'Watching the nursery.');
+            setPanel('Watching');
             setStatus(streamerId ? 'Waiting for camera connection…' : 'Waiting for a stream to start…');
           } else {
+            switchCameraButton.classList.remove('hidden');
             setStatus('Camera ready. Waiting for a watcher…');
           }
           return;
@@ -271,7 +316,7 @@
           updateLiveBadge(Boolean(message.hasActiveStreamer));
           if (role === 'watcher' && !streamerId) {
             remoteVideo.srcObject = null;
-            remotePill.textContent = 'Waiting';
+            liveLabel.textContent = 'Waiting';
             setStatus('Waiting for a stream to start…');
           }
         }
@@ -293,7 +338,7 @@
   async function enterStreamMode() {
     autoWatchStarted = true;
     showExperience();
-    setPanel('Stream', 'This device is the baby camera.');
+    setPanel('Streaming');
     setStatus('Starting camera…');
     try {
       // Only advertise a stream after camera permission succeeds.
@@ -310,7 +355,7 @@
     autoWatchStarted = true;
     showExperience();
     revealCard(remoteCard);
-    setPanel('Watch', autoStarted ? 'Live stream found. Joining now.' : 'Watching the nursery.');
+    setPanel('Watching');
     setStatus(autoStarted ? 'Joining live stream…' : 'Waiting for stream…');
     try {
       await connect('watcher');
@@ -350,6 +395,7 @@
     enterWatchMode();
   });
   closeButton.addEventListener('click', closeExperience);
+  switchCameraButton.addEventListener('click', switchCamera);
 
   updateLiveBadge(Boolean(config.hasActiveStreamer));
   setStatus(config.hasActiveStreamer ? 'Live stream detected.' : 'Choose Stream or Watch.');

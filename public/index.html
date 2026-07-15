@@ -46,14 +46,28 @@
       </div>
       <div class="floating-menu">
         <div class="floating-heading">
-          <div>
-            <p class="panel-label" id="panelLabel">Ready</p>
-            <h1 id="panelTitle">Baby Monitor</h1>
+          <div class="status-pills">
+            <span class="mode-pill" id="panelTitle">Baby Monitor</span>
+            <span class="meta-pill" id="remotePill"><span class="live-dot" aria-hidden="true"></span><span class="live-label">Waiting</span></span>
           </div>
-          <button class="close-button" id="closeButton" type="button" aria-label="Return to mode selection">×</button>
+          <div class="heading-actions">
+            <button class="camera-button hidden" id="switchCameraButton" type="button" aria-label="Switch camera" title="Switch camera">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M20 19V7a2 2 0 0 0-2-2h-3"></path>
+                <path d="m14 2-2 3 2 3"></path>
+                <path d="M4 5v12a2 2 0 0 0 2 2h3"></path>
+                <path d="m10 22 2-3-2-3"></path>
+              </svg>
+            </button>
+            <button class="close-button" id="closeButton" type="button" aria-label="Return to mode selection" title="Close">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M18 6 6 18"></path>
+                <path d="m6 6 12 12"></path>
+              </svg>
+            </button>
+          </div>
         </div>
-        <p class="status" id="status">Loading configuration…</p>
-        <span class="meta-pill" id="remotePill">Waiting</span>
+        <p class="status" id="status" aria-live="polite">Loading configuration…</p>
       </div>
     </section>
 
