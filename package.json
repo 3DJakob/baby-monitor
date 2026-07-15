@@ -1,6 +1,6 @@
 {
   "name": "homebridge-baby-monitor-local",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A simple Homebridge plugin that hosts a local baby monitor WebRTC page.",
   "main": "index.js",
   "keywords": [
@@ -26,6 +26,7 @@
   ],
   "scripts": {
     "start": "node ./index.js",
+    "dev": "node --watch ./index.js",
     "lint": "node -e \"require('./index.js'); console.log('Plugin entry loaded successfully')\"",
     "test": "node --test"
   },
