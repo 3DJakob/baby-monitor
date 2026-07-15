@@ -14,9 +14,9 @@
     "homebridge": "^1.8.0",
     "node": ">=18.0.0"
   },
-  "homepage": "https://github.com/example/homebridge-baby-monitor-local",
+  "homepage": "https://github.com/3DJakob/baby-monitor",
   "license": "MIT",
-  "author": "OpenAI Codex",
+  "author": "Jakob Unnebäck",
   "files": [
     "index.js",
     "src",
