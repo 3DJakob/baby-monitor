@@ -1,6 +1,6 @@
 FROM ghcr.io/home-assistant/base:latest
 
-RUN apk add --no-cache nodejs npm
+RUN apk add --no-cache nodejs npm openssl
 
 WORKDIR /app
 

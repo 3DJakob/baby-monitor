@@ -50,6 +50,13 @@ class BabyMonitorServer {
       });
     });
 
+    if (this.config.caCertificatePath) {
+      app.get('/baby-monitor-ca.crt', (_req, res) => {
+        res.type('application/x-x509-ca-cert');
+        res.sendFile(this.config.caCertificatePath);
+      });
+    }
+
     this.server = http.createServer(app);
     this.wss = new WebSocketServer({ server: this.server });
     this.wss.on('error', (error) => {

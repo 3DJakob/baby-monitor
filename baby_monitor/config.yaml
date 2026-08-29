@@ -1,5 +1,5 @@
 name: Baby Monitor
-version: 1.1.0
+version: 1.2.0
 slug: baby_monitor
 description: Connect local browser cameras and viewers with WebRTC.
 url: https://github.com/3DJakob/baby-monitor
@@ -15,24 +15,18 @@ ingress: true
 ingress_port: 8099
 ports:
   8099/tcp: 8099
-  8443/tcp: 8443
+  8443/tcp: 8088
 ports_description:
   8099/tcp: Unauthenticated direct HTTP access (watching only on iOS)
-  8443/tcp: Unauthenticated direct HTTPS access
-map:
-  - ssl
+  8443/tcp: Unauthenticated direct HTTPS access on port 8088
 panel_icon: mdi:baby-face-outline
 panel_title: Baby Monitor
 panel_admin: false
 options:
   stun_servers:
     - stun:stun.l.google.com:19302
-  ssl: false
-  certfile: fullchain.pem
-  keyfile: privkey.pem
+  direct_address: 192.168.1.67
 schema:
   stun_servers:
     - str
-  ssl: bool
-  certfile: str
-  keyfile: str
+  direct_address: str

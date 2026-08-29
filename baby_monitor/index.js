@@ -23,6 +23,7 @@ function start() {
     stunServers: readStunServers(),
     certificatePath: process.env.TLS_CERTIFICATE_PATH,
     keyPath: process.env.TLS_KEY_PATH,
+    caCertificatePath: process.env.CA_CERTIFICATE_PATH,
     tlsPort: Number(process.env.TLS_PORT || 8443)
   });
 

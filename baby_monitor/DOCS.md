@@ -13,20 +13,27 @@ streaming browser to each viewer.
 The app also listens directly on your Home Assistant host, with no Home
 Assistant login required:
 
-- `http://<home-assistant-ip>:8099` works for watching, but browsers such as
+- `http://192.168.1.67:8099` works for watching, but browsers such as
   iPhone Safari will not permit camera access over HTTP.
-- `https://<home-assistant-hostname>:8443` supports streaming when TLS is
-  enabled and the certificate matches the hostname you use.
+- `https://192.168.1.67:8088` supports streaming after the local certificate
+  authority is trusted.
 
 Direct endpoints have **no application authentication**. Anyone able to reach
 these ports on your local network can watch or start a stream. Do not expose
 them to the internet.
 
-To enable direct HTTPS, enable `ssl` and configure `certfile` and `keyfile`.
-They are read from Home Assistant's `/ssl` folder, so a certificate managed by
-your existing Home Assistant/DuckDNS setup can be reused. Use a hostname that
-is present in the certificate's Subject Alternative Name; a certificate for a
-DNS name does not validate when you browse by IP address.
+On first start, the app creates a local certificate authority (CA) and an IP
+certificate for `direct_address`. On every streaming phone or tablet:
+
+1. Open `http://192.168.1.67:8099/baby-monitor-ca.crt` and install the CA
+   profile.
+2. On iPhone/iPad, go to **Settings → General → About → Certificate Trust
+   Settings**, enable full trust for **Baby Monitor Local CA**, and confirm.
+3. Open `https://192.168.1.67:8088` and select **Stream**.
+
+If your Home Assistant IP changes, update `direct_address` in the app's
+configuration and restart it, then use the new IP in both URLs. Devices that
+already trust the CA do not need to install it again.
 
 ## Configuration
 
