@@ -1,5 +1,5 @@
 name: Baby Monitor
-version: 1.0.0
+version: 1.0.1
 slug: baby_monitor
 description: Connect local browser cameras and viewers with WebRTC.
 url: https://github.com/3DJakob/baby-monitor
