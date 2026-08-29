@@ -6,7 +6,7 @@ local baby monitor web page. The page offers two actions:
 - `Stream`: opens the local camera and microphone on one device
 - `Watch`: receives the live stream on another device
 
-After the initial WebSocket signaling handshake, the media stream is sent directly between peers with WebRTC, so the Homebridge server does not relay the video itself.
+After the initial WebSocket signaling handshake, the media stream is sent directly between peers with WebRTC, so Home Assistant does not relay the video itself.
 
 ## What this does
 
