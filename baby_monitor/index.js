@@ -20,7 +20,10 @@ const log = {
 function start() {
   const server = new BabyMonitorServer(log, {
     port: Number(process.env.PORT || 8099),
-    stunServers: readStunServers()
+    stunServers: readStunServers(),
+    certificatePath: process.env.TLS_CERTIFICATE_PATH,
+    keyPath: process.env.TLS_KEY_PATH,
+    tlsPort: Number(process.env.TLS_PORT || 8443)
   });
 
   server.startServer().catch((error) => {

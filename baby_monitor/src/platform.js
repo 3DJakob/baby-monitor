@@ -2,6 +2,8 @@
 
 const express = require('express');
 const http = require('http');
+const https = require('https');
+const fs = require('fs');
 const path = require('path');
 const { WebSocketServer } = require('ws');
 
@@ -11,6 +13,8 @@ class BabyMonitorServer {
     this.config = config;
     this.server = null;
     this.wss = null;
+    this.tlsServer = null;
+    this.tlsWss = null;
     this.clients = new Set();
     this.streamerClientId = null;
   }
@@ -59,6 +63,31 @@ class BabyMonitorServer {
     });
 
     this.log.info(`Baby monitor signaling server listening on port ${this.server.address().port}`);
+
+    const hasCertificate = Boolean(this.config.certificatePath);
+    const hasKey = Boolean(this.config.keyPath);
+    if (hasCertificate !== hasKey) {
+      throw new Error('certificatePath and keyPath must be configured together.');
+    }
+
+    if (hasCertificate) {
+      const tlsPort = Number(this.config.tlsPort ?? 8443);
+      this.tlsServer = https.createServer({
+        cert: fs.readFileSync(this.config.certificatePath),
+        key: fs.readFileSync(this.config.keyPath)
+      }, app);
+      this.tlsWss = new WebSocketServer({ server: this.tlsServer });
+      this.tlsWss.on('error', (error) => {
+        this.log.error('Secure WebSocket server error:', error.message);
+      });
+      this.tlsWss.on('connection', (socket, request) => this.handleSocket(socket, request));
+
+      await new Promise((resolve, reject) => {
+        this.tlsServer.once('error', reject);
+        this.tlsServer.listen(tlsPort, '0.0.0.0', resolve);
+      });
+      this.log.info(`Secure direct-access server listening on port ${this.tlsServer.address().port}`);
+    }
   }
 
   stopServer() {
@@ -73,9 +102,19 @@ class BabyMonitorServer {
       this.wss = null;
     }
 
+    if (this.tlsWss) {
+      this.tlsWss.close();
+      this.tlsWss = null;
+    }
+
     if (this.server) {
       this.server.close();
       this.server = null;
+    }
+
+    if (this.tlsServer) {
+      this.tlsServer.close();
+      this.tlsServer = null;
     }
 
   }

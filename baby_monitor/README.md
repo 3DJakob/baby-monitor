@@ -31,6 +31,11 @@ The Ingress connection is served through your Home Assistant URL, so no
 certificate paths or Bonjour settings are required. For camera access, use a
 secure Home Assistant URL on the streaming browser.
 
+For unauthenticated local access, use `http://<home-assistant-ip>:8099`.
+Enable the app's optional TLS settings to stream directly from iOS at
+`https://<certificate-hostname>:8443`. Direct endpoints are accessible to any
+device on the LAN and must not be exposed to the internet.
+
 ## Configuration
 
 `stun_servers` is a list of WebRTC STUN server URLs. The default works on most

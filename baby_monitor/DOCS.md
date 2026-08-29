@@ -4,10 +4,29 @@ Open **Baby Monitor** from the Home Assistant sidebar on the camera device and
 select **Stream**. Open the same sidebar panel on another device and select
 **Watch**.
 
-Home Assistant's Ingress proxy supplies the secure browser context required by
-camera devices and authenticates access to the panel. The add-on only carries
-WebRTC signaling; audio and video flow directly from the streaming browser to
-each viewer.
+Home Assistant's Ingress proxy supplies authenticated access to the panel. The
+app only carries WebRTC signaling; audio and video flow directly from the
+streaming browser to each viewer.
+
+## Direct local-network access
+
+The app also listens directly on your Home Assistant host, with no Home
+Assistant login required:
+
+- `http://<home-assistant-ip>:8099` works for watching, but browsers such as
+  iPhone Safari will not permit camera access over HTTP.
+- `https://<home-assistant-hostname>:8443` supports streaming when TLS is
+  enabled and the certificate matches the hostname you use.
+
+Direct endpoints have **no application authentication**. Anyone able to reach
+these ports on your local network can watch or start a stream. Do not expose
+them to the internet.
+
+To enable direct HTTPS, enable `ssl` and configure `certfile` and `keyfile`.
+They are read from Home Assistant's `/ssl` folder, so a certificate managed by
+your existing Home Assistant/DuckDNS setup can be reused. Use a hostname that
+is present in the certificate's Subject Alternative Name; a certificate for a
+DNS name does not validate when you browse by IP address.
 
 ## Configuration
 
