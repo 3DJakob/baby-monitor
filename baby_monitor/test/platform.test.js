@@ -3,7 +3,7 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
 const { WebSocket } = require('ws');
-const { BabyMonitorPlatform } = require('../src/platform');
+const { BabyMonitorServer } = require('../src/platform');
 
 function waitFor(socket, type) {
   return new Promise((resolve, reject) => {
@@ -27,8 +27,7 @@ function connect(url) {
 }
 
 test('the active streamer is paired with watchers and routes signaling', async (t) => {
-  const platform = new BabyMonitorPlatform({ info() {}, warn() {}, error() {} }, { port: 0 }, null);
-  platform.advertiseBonjour = () => {};
+  const platform = new BabyMonitorServer({ info() {}, warn() {}, error() {} }, { port: 0 });
   await platform.startServer();
   t.after(() => platform.stopServer());
 

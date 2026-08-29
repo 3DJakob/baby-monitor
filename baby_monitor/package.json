@@ -1,19 +1,15 @@
 {
-  "name": "homebridge-baby-monitor-local",
-  "version": "0.1.1",
-  "description": "A simple Homebridge plugin that hosts a local baby monitor WebRTC page.",
+  "name": "home-assistant-baby-monitor",
+  "version": "1.0.0",
+  "description": "A local WebRTC baby monitor signaling server for Home Assistant.",
   "main": "index.js",
   "keywords": [
-    "homebridge-plugin",
-    "homebridge",
+    "home-assistant",
     "webrtc",
     "baby-monitor",
     "raspberry-pi"
   ],
-  "engines": {
-    "homebridge": "^1.8.0",
-    "node": ">=18.0.0"
-  },
+  "engines": { "node": ">=18.0.0" },
   "homepage": "https://github.com/3DJakob/baby-monitor",
   "license": "MIT",
   "author": "Jakob Unnebäck",
@@ -27,13 +23,11 @@
   "scripts": {
     "start": "node ./index.js",
     "dev": "node --watch ./index.js",
-    "lint": "node -e \"require('./index.js'); console.log('Plugin entry loaded successfully')\"",
+    "lint": "node -e \"require('./index.js'); console.log('Server entry loaded successfully')\"",
     "test": "node --test"
   },
   "dependencies": {
-    "bonjour-service": "^1.3.0",
     "express": "^4.21.2",
-    "homebridge": "^1.8.5",
     "ws": "^8.18.0"
   }
 }

@@ -14,7 +14,15 @@
   const closeButton = document.getElementById('closeButton');
   const switchCameraButton = document.getElementById('switchCameraButton');
 
-  const config = await fetch('/config.json', { cache: 'no-store' }).then((response) => response.json());
+  function applicationUrl(relativePath = '') {
+    const base = new URL(window.location.href);
+    if (!base.pathname.endsWith('/')) {
+      base.pathname += '/';
+    }
+    return new URL(relativePath, base);
+  }
+
+  const config = await fetch(applicationUrl('config.json'), { cache: 'no-store' }).then((response) => response.json());
   const iceServers = (config.stunServers || []).map((urls) => ({ urls }));
   const peers = new Map();
   const pendingIce = new Map();
@@ -83,7 +91,9 @@
   }
 
   function socketUrl() {
-    return `${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}`;
+    const url = applicationUrl();
+    url.protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+    return url.toString();
   }
 
   function send(type, targetClientId, payload) {
@@ -370,7 +380,7 @@
         return;
       }
       try {
-        const health = await fetch('/health', { cache: 'no-store' }).then((response) => response.json());
+        const health = await fetch(applicationUrl('health'), { cache: 'no-store' }).then((response) => response.json());
         updateLiveBadge(Boolean(health.hasActiveStreamer));
         if (health.hasActiveStreamer) {
           streamButton.disabled = true;

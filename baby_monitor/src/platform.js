@@ -2,39 +2,17 @@
 
 const express = require('express');
 const http = require('http');
-const https = require('https');
-const fs = require('fs');
 const path = require('path');
 const { WebSocketServer } = require('ws');
-const { Bonjour } = require('bonjour-service');
 
-class BabyMonitorPlatform {
-  constructor(log, config, api) {
+class BabyMonitorServer {
+  constructor(log, config = {}) {
     this.log = log;
-    this.config = config || {};
-    this.api = api;
+    this.config = config;
     this.server = null;
     this.wss = null;
-    this.bonjour = null;
-    this.service = null;
     this.clients = new Set();
     this.streamerClientId = null;
-
-    if (api) {
-      api.on('didFinishLaunching', () => {
-        this.startServer().catch((error) => {
-          this.log.error('Failed to start baby monitor server:', error);
-        });
-      });
-
-      api.on('shutdown', () => {
-        this.stopServer();
-      });
-    }
-  }
-
-  configureAccessory() {
-    // This plugin only hosts a web app; it does not publish HomeKit accessories yet.
   }
 
   async startServer() {
@@ -68,20 +46,7 @@ class BabyMonitorPlatform {
       });
     });
 
-    const httpsConfig = this.config.https || {};
-    const hasCertificate = Boolean(httpsConfig.certificatePath);
-    const hasKey = Boolean(httpsConfig.keyPath);
-    if (hasCertificate !== hasKey) {
-      throw new Error('https.certificatePath and https.keyPath must be configured together.');
-    }
-
-    const isHttps = hasCertificate && hasKey;
-    this.server = isHttps
-      ? https.createServer({
-        cert: fs.readFileSync(httpsConfig.certificatePath),
-        key: fs.readFileSync(httpsConfig.keyPath)
-      }, app)
-      : http.createServer(app);
+    this.server = http.createServer(app);
     this.wss = new WebSocketServer({ server: this.server });
     this.wss.on('error', (error) => {
       this.log.error('WebSocket server error:', error.message);
@@ -93,12 +58,7 @@ class BabyMonitorPlatform {
       this.server.listen(port, '0.0.0.0', resolve);
     });
 
-    this.advertiseBonjour(port, isHttps);
-
-    const hostHint = this.config.hostName || 'homebridge.local';
-    const protocol = isHttps ? 'https' : 'http';
-    this.log.info(`Baby monitor UI available on ${protocol}://${hostHint}:${port}`);
-    this.log.info(`Fallback URL: ${protocol}://<your-pi-ip>:${port}`);
+    this.log.info(`Baby monitor signaling server listening on port ${this.server.address().port}`);
   }
 
   stopServer() {
@@ -118,34 +78,6 @@ class BabyMonitorPlatform {
       this.server = null;
     }
 
-    if (this.service) {
-      this.service.stop();
-      this.service = null;
-    }
-
-    if (this.bonjour) {
-      this.bonjour.destroy();
-      this.bonjour = null;
-    }
-  }
-
-  advertiseBonjour(port, isHttps = false) {
-    const serviceName = this.config.serviceName || 'Baby Monitor';
-
-    try {
-      this.bonjour = new Bonjour();
-      this.service = this.bonjour.publish({
-        name: serviceName,
-        type: isHttps ? 'https' : 'http',
-        port,
-        txt: {
-          path: '/',
-          plugin: 'homebridge-baby-monitor-local'
-        }
-      });
-    } catch (error) {
-      this.log.warn('Bonjour advertisement failed:', error.message);
-    }
   }
 
   handleSocket(socket, request) {
@@ -314,5 +246,5 @@ class BabyMonitorPlatform {
 }
 
 module.exports = {
-  BabyMonitorPlatform
+  BabyMonitorServer
 };
